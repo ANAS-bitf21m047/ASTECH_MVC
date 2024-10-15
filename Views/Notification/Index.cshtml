@@ -1,0 +1,57 @@
+﻿@using RJTECH_Authentication_.Data
+
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_ownLayout";
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+
+<div style="display:flex; justify-content:center; align-items:center; flex-direction:column">
+    <h2>Notification (SignalR)</h2>
+
+    <input type="text" id="messageInput" placeholder="Enter your message" class="form-control mb-2" style="" />
+
+    <button onclick="SendNotification()">Send Basic Notification</button>
+
+    <button onclick="SendNotificationWithMessage()">Send Notification with Message</button>
+</div>
+
+
+<script>
+    const connection = new signalR.HubConnectionBuilder().withUrl("/nHub").build();
+
+    connection.start().catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    connection.on("ReceiveNotification", function (message) {
+        if (message) {
+            alert(message);
+        } else {
+            alert("HELLO");
+        }
+    });
+
+    function SendNotification() {
+        connection.invoke("SendNotification").catch(function (err) {
+            return console.error(err.toString());
+        });
+    }
+
+    function SendNotificationWithMessage() {
+        const message = document.getElementById("messageInput").value; 
+        console.log("Message", message);
+        if (!message) {
+            alert("Please enter a message.");
+            return;
+        }
+
+        connection.invoke("SendNotification2", message).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        document.getElementById("messageInput").value = "";
+    }
+</script>
